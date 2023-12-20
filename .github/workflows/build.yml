@@ -52,6 +52,34 @@ jobs:
           name: macos-universal
           path: build/bin
 
+  build-windows:
+    name: Build Windows
+    strategy:
+      matrix:
+        include:
+          - name: x86_64
+            sys: clang64
+          - name: arm64
+            sys: clangarm64
+      fail-fast: false
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.sys }}
+          install: make texinfo
+          pacboy: clang:p
+      - name: Build
+        shell: msys2 {0}
+        run: ./build-windows.sh
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-${{ matrix.name }}
+          path: build/bin
+
   release:
     name: Release
     # if: startsWith(github.ref, 'refs/tags/')
