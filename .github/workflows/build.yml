@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-${{ matrix.name }}
-          path: build
+          path: build/bin
 
   build-macos:
     name: Build macOS
@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: macos-universal
-          path: build
+          path: build/bin
 
   release:
     name: Release

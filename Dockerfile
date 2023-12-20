@@ -16,4 +16,4 @@ RUN ./configure --target=powerpc-unknown-eabi --prefix=/target --disable-nls --d
 
 # Export binary (usage: docker build --target export --output build .)
 FROM scratch AS export
-COPY --from=build /target/bin/* .
+COPY --from=build /target/* .
