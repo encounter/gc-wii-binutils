@@ -9,14 +9,18 @@ on:
 
 jobs:
   build-linux:
-    name: Build
+    name: Build Linux
     strategy:
       matrix:
-        platform:
-          - linux/amd64
-          - linux/386
-          - linux/arm/v7
-          - linux/arm64/v8
+        include:
+          - name: x86_64
+            platform: linux/amd64
+          - name: i686
+            platform: linux/386
+          - name: armv7l
+            platform: linux/arm/v7
+          - name: aarch64
+            platform: linux/arm64/v8
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
@@ -29,9 +33,23 @@ jobs:
       - name: Build
         run: docker build --target export --output build . --platform ${{ matrix.platform }}
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: artifacts
+          name: linux-${{ matrix.name }}
+          path: build
+
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build
+        run: ./build-macos.sh
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-universal
           path: build
 
   release:
@@ -41,7 +59,7 @@ jobs:
     needs: [ build-linux ]
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: List artifacts
