@@ -14,10 +14,6 @@ RUN ./configure --target=powerpc-eabi --prefix=/target --disable-nls --disable-s
     && make -j$(nproc) LDFLAGS=-all-static \
     && make install-strip
 
-# Rename binaries
-RUN cd /target/bin \
-    && for f in *; do mv $f powerpc-eabi-$f; done
-
 # Export binary (usage: docker build --target export --output build .)
 FROM scratch AS export
-COPY --from=build /target/* .
+COPY --from=build /target .
