@@ -1,14 +1,14 @@
 # Build stage
-FROM alpine:3.19.0 AS build
+FROM alpine:3.19.1 AS build
 
 # Install dependencies
 RUN apk add --no-cache gcc musl-dev make
 
 # Download and extract source
-RUN wget -qO- https://ftp.gnu.org/gnu/binutils/binutils-2.41.tar.xz | tar -xJ
+RUN wget -qO- https://ftp.gnu.org/gnu/binutils/binutils-2.42.tar.xz | tar -xJ
 
 # Build binutils
-WORKDIR /binutils-2.41
+WORKDIR /binutils-2.42
 RUN ./configure --target=powerpc-eabi --prefix=/target --disable-nls --disable-shared \
     && make -j$(nproc) configure-host \
     && make -j$(nproc) LDFLAGS=-all-static \
