@@ -14,24 +14,27 @@ jobs:
       matrix:
         include:
           - name: x86_64
-            platform: linux/amd64
+            gnu: x86_64-linux-musl
+            zig: x86_64-linux-musl
           - name: i686
-            platform: linux/386
+            gnu: i686-linux-musl
+            zig: x86-linux-musl
           - name: armv7l
-            platform: linux/arm/v7
+            gnu: arm-linux-musleabihf
+            zig: arm-linux-musleabihf
           - name: aarch64
-            platform: linux/arm64/v8
+            gnu: aarch64-linux-musl
+            zig: aarch64-linux-musl
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: actions/checkout@v4
       - name: Build
-        run: docker build --target export --output build . --platform ${{ matrix.platform }}
+        run: >
+          docker build --target export --output build . 
+          --build-arg GNU_TRIPLE=${{ matrix.gnu }}
+          --build-arg ZIG_TRIPLE=${{ matrix.zig }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -43,7 +46,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Build
         run: ./build-macos.sh
       - name: Upload artifacts
@@ -65,7 +68,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ matrix.sys }}
@@ -96,6 +99,6 @@ jobs:
         working-directory: artifacts
         run: for f in *; do zip -jr $f.zip $f; done
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@4634c16
         with:
           files: artifacts/*.zip
