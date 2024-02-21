@@ -3,7 +3,7 @@ ARG ALPINE_VERSION=3.19.1
 FROM alpine:${ALPINE_VERSION} AS build
 
 # Install dependencies
-RUN apk add --no-cache binutils file gcc make musl-dev
+RUN apk add --no-cache binutils file gcc make musl-dev patch
 
 # Install zig
 ARG ZIG_VERSION=0.11.0
@@ -28,9 +28,10 @@ RUN mkdir /binutils-host && \
 
 # Build target binutils
 ARG ZIG_TRIPLE
+COPY *.patch /
 RUN mkdir /binutils && \
     tar -xf /binutils-${BINUTILS_VERSION}.tar.xz -C /binutils --strip-components=1 && \
-    cd /binutils && \
+    cd /binutils && for patch in ../*.patch; do patch -N -p1 -i $patch; done && \
     CC="zig cc -target ${ZIG_TRIPLE}" \
     ./configure --host=${GNU_TRIPLE} --target=powerpc-eabi --prefix=/target \
     --disable-nls --disable-shared --disable-gprof --without-zstd && \

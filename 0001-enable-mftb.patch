@@ -1,0 +1,13 @@
+diff --git a/opcodes/ppc-opc.c b/opcodes/ppc-opc.c
+index e55bfe846cd..f160e290bce 100644
+--- a/opcodes/ppc-opc.c
++++ b/opcodes/ppc-opc.c
+@@ -4988,7 +4988,7 @@ const unsigned int num_powerpc_operands = ARRAY_SIZE (powerpc_operands);
+ #define MFDEC2	(PPC_OPCODE_PPC | PPC_OPCODE_601 | PPC_OPCODE_BOOKE \
+ 		 | PPC_OPCODE_TITAN)
+ #define BOOKE	PPC_OPCODE_BOOKE
+-#define NO371	PPC_OPCODE_BOOKE | PPC_OPCODE_PPCPS | PPC_OPCODE_EFS
++#define NO371	PPC_OPCODE_BOOKE | PPC_OPCODE_EFS
+ #define PPCE300 PPC_OPCODE_E300
+ #define PPCSPE	PPC_OPCODE_SPE
+ #define PPCSPE2 PPC_OPCODE_SPE2

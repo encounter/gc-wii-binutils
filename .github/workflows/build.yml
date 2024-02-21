@@ -72,7 +72,7 @@ jobs:
       - uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ matrix.sys }}
-          install: make texinfo
+          install: make texinfo patch
           pacboy: clang:p
       - name: Build
         shell: msys2 {0}
