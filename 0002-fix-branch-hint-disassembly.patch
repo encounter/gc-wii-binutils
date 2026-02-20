@@ -1,0 +1,57 @@
+--- a/opcodes/ppc-opc.c	2026-02-20 10:07:16.238782135 -0700
++++ b/opcodes/ppc-opc.c	2026-02-20 10:02:17.768706877 -0700
+@@ -248,7 +248,13 @@
+ {
+   if ((dialect & ISA_V2) == 0)
+     {
+-      if (((insn & (1 << 21)) == 0) != ((insn & (1 << 15)) == 0))
++      /* For pre-ISA_V2 (y-bit scheme), the "-" suffix should only be
++	 shown when the prediction differs from the default.  The y-bit
++	 (bit 21) reverses the default static prediction: backward
++	 branches (negative BD, bit 15 set) are predicted taken, forward
++	 branches are predicted not-taken.  So "-" (predict not-taken)
++	 is non-default only when y=1 AND the branch is backward.  */
++      if ((insn & (1 << 21)) == 0 || (insn & (1 << 15)) == 0)
+ 	*invalid = 1;
+     }
+   else
+@@ -293,7 +299,13 @@
+ {
+   if ((dialect & ISA_V2) == 0)
+     {
+-      if (((insn & (1 << 21)) == 0) == ((insn & (1 << 15)) == 0))
++      /* For pre-ISA_V2 (y-bit scheme), the "+" suffix should only be
++	 shown when the prediction differs from the default.  The y-bit
++	 (bit 21) reverses the default static prediction: backward
++	 branches (negative BD, bit 15 set) are predicted taken, forward
++	 branches are predicted not-taken.  So "+" (predict taken) is
++	 non-default only when y=1 AND the branch is forward.  */
++      if ((insn & (1 << 21)) == 0 || (insn & (1 << 15)) != 0)
+ 	*invalid = 1;
+     }
+   else
+--- a/opcodes/ppc-dis.c	2024-01-28 17:00:00.000000000 -0700
++++ b/opcodes/ppc-dis.c	2026-02-20 10:03:40.457706897 -0700
+@@ -639,6 +639,22 @@
+ 	  || (opcode->deprecated & dialect & PPC_OPCODE_RAW) != 0)
+ 	continue;
+ 
++      /* For pre-ISA_V2 (y-bit scheme), XL-form branch instructions
++	 (bclr, bcctr) have a default prediction of "not taken".
++	 The y-bit (bit 21) reverses this to "taken".  Since "not taken"
++	 is always the default, the "-" suffix is never meaningful --
++	 it would be identical to the unsuffixed form.  Skip "-" entries
++	 so the unsuffixed form matches instead.  */
++      if ((dialect & (PPC_OPCODE_POWER4
++		      | PPC_OPCODE_E500MC
++		      | PPC_OPCODE_TITAN)) == 0
++	  && op == 19)
++	{
++	  const char *name = opcode->name;
++	  if (name[strlen (name) - 1] == '-')
++	    continue;
++	}
++
+       /* Check validity of operands.  */
+       invalid = 0;
+       for (opindex = opcode->operands; *opindex != 0; opindex++)
